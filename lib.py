@@ -3,10 +3,36 @@ from dotenv import load_dotenv
 import os
 import requests
 import json
+import pymongo
 load_dotenv()
 
 class MongoHandler():
-    pass
+    def __init__(self, db):
+        self.client = pymongo.MongoClient("mongodb://127.0.0.1:27017/")
+        self.db = self.client[db]
+    
+    def add_docs(self, coll, recs):
+        for rec in recs:
+            if rec['Games in rain'] != 0:
+                data = {'name':rec['name'],
+                        'goals':rec['Total goals'],
+                        'wins': rec['Num wins'],
+                        'win percentage in rain': rec['Wins in rain percentage']}
+            else:
+                data = {'name':rec['name'],
+                        'goals':rec['Total goals'],
+                        'wins': rec['Num wins']}
+            result = self.db[coll].insert_one(data)
+            print(result) # to confirm the document was written
+
+    def all_docs(self, coll):
+        query = self.db[coll].find({})
+        for q in query:
+            print(q)
+    
+    def empty_coll(self, coll):
+        result = self.db[coll].delete_many({})
+        print(result)
 
 class WeatherGetter():
     def __init__(self):
