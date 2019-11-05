@@ -12,24 +12,27 @@ class MongoHandler():
         self.db = self.client[db]
     
     def add_docs(self, coll, recs):
+        # for each record in my list of records
         for rec in recs:
+            # check for any games played in rain
             if rec['Games in rain'] != 0:
                 data = {'name':rec['name'],
                         'goals':rec['Total goals'],
                         'wins': rec['Num wins'],
-                        'win percentage in rain': rec['Wins in rain percentage']}
+                        'win percentage in rain': rec['Wins in rain percentage']} # this will only be included if any games were
+                                                                                  # played in rain
             else:
                 data = {'name':rec['name'],
                         'goals':rec['Total goals'],
                         'wins': rec['Num wins']}
             result = self.db[coll].insert_one(data)
             print(result) # to confirm the document was written
-
+    # function just to query the collection (see if its populated)
     def all_docs(self, coll):
         query = self.db[coll].find({})
         for q in query:
             print(q)
-    
+    # option to empty the collection before populating
     def empty_coll(self, coll):
         result = self.db[coll].delete_many({})
         print(result)
@@ -45,7 +48,7 @@ class WeatherGetter():
             raise ValueError('Missing API key!')
         
     def get_weather(self, lat, long, date):
-        
+        # split the date into components
         year = date[:4]
         month = date[5:7]
         day = date[8:]
@@ -57,7 +60,7 @@ class WeatherGetter():
         resp = requests.get(url).json()
         
         return resp
-    
+    # create a dictionary of weather data for the selected dates
     def get_weather_dates(self, lat, long, dates):
         
         weather_dict = {}
